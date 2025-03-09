@@ -1,0 +1,201 @@
+.header {
+  position: sticky;
+  top: 0;
+  backdrop-filter: blur(5px);
+  color: $text-color;
+  padding: 15px 25px;
+ transition: all 0.3s ease-in-out;
+  .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .menu-input {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    .menu {
+      width: 35px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      border: 1px solid $border-color;
+      border-radius: 5px;
+      background-color: #fff;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      span {
+        background-color: #5B6B79;
+        border-radius: 20px;
+        display: block;
+        width: 90%;
+        height: 2.5px;
+        margin: 2.5px 0;
+        transition: all 0.3s ease;
+      }
+
+      &:hover {
+        border-color: $primary;
+
+        span {
+          background-color: $primary;
+        }
+      }
+    }
+
+    label {
+      position: relative;
+
+      .input {
+        padding: 10px 12px 10px 35px;
+        font-size: 14px;
+      }
+
+      .search-icon {
+        position: absolute;
+        top: 50%;
+        left: 10px;
+        transform: translateY(-50%);
+        color: $text-color;
+      }
+    }
+
+  }
+
+  .flex {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    .relative {
+      position: relative;
+    }
+
+    .icon-btn {
+      position: relative;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 1.2rem;
+      color: #465566;
+      padding: 8px;
+      border-radius: 50%;
+      transition: color 0.3s;
+
+      &:hover {
+        color: #0075fb;
+      }
+    }
+
+    .dropdown {
+      position: absolute;
+      top: 40px;
+      right: 0;
+      background: #FFF;
+      border: 1px solid #ccc;
+      color: #465566;
+      border-radius: 8px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      min-width: 130px;
+      max-width: 300px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+
+      button {
+        background: none;
+        border: none;
+        color: #465566;
+        font-size: 14px;
+        padding: 6px 10px;
+        text-align: left;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: background 0.3s;
+        border-radius: 10px;
+
+        &:hover {
+          background: rgb(223, 223, 223);
+        }
+      }
+    }
+
+    .notification {
+      position: relative;
+
+      .badge {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: #28a745;
+        color: white;
+        font-size: 12px;
+        padding: 2px 6px;
+        border-radius: 50%;
+        transform: translate(50%, -50%);
+      }
+    }
+
+    .avatar {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background-color: #0075fb;
+      border-radius: 50%;
+      border: none;
+
+      img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 2px solid var(--border-color, #666);
+        transition: border-color 0.3s ease, transform 0.2s ease;
+
+        &:hover {
+          border-color: var(--primary-color, #3498db);
+        }
+      }
+    }
+  }
+}
+
+.header.dark {
+  background-color: rgba(21, 27, 34, 0.8);
+
+  .menu {
+    background-color: #1B232D;
+  }
+
+  .input {
+    background-color: #1B232D;
+    color: #A9AAAC;
+  }
+
+  .search-icon {
+    color: #A9AAAC;
+  }
+
+  .dropdown {
+    background-color: #263240;
+    color: #FFF;
+    box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.2);
+
+    button {
+      color: #FFF;
+
+      &:hover {
+        background-color: #3f5774;
+      }
+    }
+  }
+}
