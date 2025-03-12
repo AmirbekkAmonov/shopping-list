@@ -2,13 +2,12 @@ import React, { useState } from 'react';
 import { useStore } from '@/hooks/useStore';
 import { faCopy, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Modal, message } from "antd"; // Modal va message import qilindi
+import { Modal, message } from "antd"; 
 
 function HomePage() {
   const user = useStore((state) => state.user);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Username'ni nusxalash funksiyasi
   const handleCopyUsername = () => {
     if (user?.username) {
       navigator.clipboard.writeText(user.username);
@@ -16,14 +15,12 @@ function HomePage() {
     }
   };
 
-  // Modalni ochish
   const showDeleteConfirm = () => {
     setIsModalOpen(true);
   };
 
-  // Delete tasdiqlansa bajariladigan funksiya
   const handleDeleteAccount = () => {
-    console.log("Account deleted"); // Hozircha faqat konsolga chiqaramiz
+    console.log("Account deleted"); 
     setIsModalOpen(false);
     message.success("Account deleted successfully!");
   };
@@ -54,7 +51,6 @@ function HomePage() {
         </div>
       </div>
 
-      {/* Delete Account Modal */}
       <Modal
         title="Confirm Account Deletion"
         open={isModalOpen}
