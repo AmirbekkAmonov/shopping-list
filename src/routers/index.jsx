@@ -4,6 +4,7 @@ import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
 import HomePage from "../pages/HomePage";
 import PrivateRoute from "./PrivateRoute";
+import GroupPage from "../pages/GroupPage";
 
 function AppRoutes() {
   return (
@@ -13,6 +14,7 @@ function AppRoutes() {
       <Route path="/" element={<PrivateRoute />}>
         <Route path="/" element={<Layout />}>
           <Route index element={<HomePage />} />
+          <Route path="/groups/:id" element={<GroupPage />} />
         </Route>
       </Route>
     </Routes>

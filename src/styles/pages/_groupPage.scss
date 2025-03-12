@@ -1,0 +1,155 @@
+.group-page {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: calc(100vh - 70px);
+    padding: 20px;
+    background-color: #FFF;
+    border-top: 2px dashed $border-color;
+
+    .group-header {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+
+        .group-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+
+            .owner {
+                padding: 8px 15px;
+                border-radius: 5px;
+                background-color: $body-bg;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                border: 1px solid $border-color;
+
+                h3,
+                p {
+                    text-transform: capitalize;
+                    font-size: 16px;
+                    font-weight: 600;
+
+                    span {
+                        background-color: #0075fb;
+                        color: #FFF;
+                        padding: 2px 7px;
+                        border-radius: 5px;
+                        margin-right: 5px;
+                    }
+                }
+            }
+
+            .menu-btn-group {
+                padding: 8.8px 15px;
+                border-radius: 5px;
+                font-size: 18px;
+                background-color: $body-bg;
+                border: 1px solid $border-color;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                cursor: pointer;
+            }
+        }
+
+        .group-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+        }
+    }
+    .group-content {
+        width: 100%;
+        height: calc(100vh - 165px);
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: start;
+        gap: 20px;
+
+        .group-info, .group-members {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid $border-color;
+            width: calc(50% - 10px);
+            height: 100%;
+            background-color: $body-bg;
+
+            .group-description {
+                display: flex;
+                align-items: start;
+                justify-content: space-between;
+                gap: 10px;
+
+                .group-items {
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    gap: 10px;
+
+                    .add-item {
+                        padding: 2px 10px;
+                        border-radius: 5px;
+                        border: 1px solid $border-color;
+                        background-color: #0075fb;
+                        color: #FFF;
+                        font-size: 24px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        cursor: pointer;
+                    }
+                }
+
+                h4 {
+                    text-transform: capitalize;
+                    font-size: calc(1.275rem + .3vw);
+                    font-weight: 600;
+                    
+                    span {
+                        background-color: #0075fb;
+                        color: #FFF;
+                        padding: 2px 10px;
+                        border-radius: 5px;
+                        margin-right: 5px;
+                    }
+                }
+            }
+        }
+    }
+}
+
+body.dark {
+    .group-page {
+        background-color: #1B232D;
+        border-top: 2px dashed #222d39;
+    }
+
+    .owner,
+    .menu-btn-group {
+        background-color: $body-bg-dark !important;
+        border: 1px solid #ccc !important;
+    }
+
+    .menu-btn-group {
+        color: #FFF;
+    }
+    .group-info, .group-members {
+        background-color: #1B232D !important;
+        border: 1px solid #ccc !important;
+    }
+    .input {
+        background-color: #1B232D !important;
+        color: #A9AAAC !important;
+    }
+}

@@ -1,26 +1,35 @@
-import { useState } from "react"; // ✅ useState import qilingan
+import { useState } from "react";
 import { useTheme } from "@/hooks/useTheme";
-import { useStore } from "@/hooks/useStore"; 
-import { FaUser, FaCog, FaLock, FaPowerOff, FaEllipsisV } from "react-icons/fa";
+import { useStore } from "@/hooks/useStore";
+import { FaUser, FaCog, FaLock, FaPowerOff, FaEllipsisV, FaUsers, FaPlus } from "react-icons/fa";
+import { Collapse, Button, Drawer, Form, Input, List } from "antd";
 import useAuth from "../../hooks/useAuth";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 function Sidebar() {
   const { darkMode } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const user = useStore((state) => state.user);
   const { logout } = useAuth();
+  const groups = useStore((state) => state.groups);
+  const addGroup = useStore((state) => state.addGroup);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [form] = Form.useForm();
+
+  const handleAddGroup = (values) => {
+    addGroup({ name: values.name, password: values.password, id: Date.now() });
+    form.resetFields();
+    setDrawerOpen(false);
+  };
+  const navigate = useNavigate();
+  const location = useLocation();
 
   return (
     <div className={`sidebar ${darkMode ? "dark" : ""}`}>
-      <Link to="/">GroupMart</Link>
-      <div className="sidebar-content">   
+      <Link className="logo" to="/">GroupMart</Link>
+      <div className="sidebar-content">
         <div className="profile">
-          <img
-            src="avatar.jpg"
-            alt="Profile"
-            className="avatar"
-          />
+          <img src="avatar.jpg" alt="Profile" className="avatar" />
           <div className="info">
             <h4>{user ? user.name : "Guest"}</h4>
             <p>{user ? `@${user.username}` : "No username"}</p>
@@ -29,24 +38,84 @@ function Sidebar() {
             <FaEllipsisV />
           </button>
         </div>
-
         <div className={`dropdown ${isOpen ? "open" : ""}`}>
           <ul>
-            <li>
-              <FaUser /> My Account
-            </li>
-            <li>
-              <FaCog /> Settings
-            </li>
-            <li>
-              <FaLock /> Lock Screen
-            </li>
-            <li onClick={logout}> 
-              <FaPowerOff /> Logout
-            </li>
+            <li><FaUser /> My Account</li>
+            <li><FaCog /> Settings</li>
+            <li><FaLock /> Lock Screen</li>
+            <li onClick={logout}><FaPowerOff /> Logout</li>
           </ul>
         </div>
       </div>
+      <Collapse
+        style={{ marginTop: "10px"  }}
+        className="sidebar-collapse"
+        items={[
+          {
+            key: "1",
+            label: (
+              <div className="collapse-label">
+                <FaUsers  /> Groups
+              </div>
+            ),
+            children: (
+              <>
+                <Button
+                  type="primary"
+                  icon={<FaPlus />}
+                  block
+                  style={{ marginBottom: "10px" }}
+                  onClick={() => setDrawerOpen(true)}
+                >
+                  Add Group
+                </Button>
+                <List
+                  style={{ overflow: "hidden" }}
+                  size="small"
+                  bordered
+                  dataSource={groups}
+                  renderItem={(group) => (
+                    <List.Item
+                      className={`group-item ${location.pathname === `/groups/${group.id}` ? "active" : ""}`}
+                      onClick={() => navigate(`/groups/${group.id}`)}
+                    >
+                      <strong>{group.name}</strong>
+                    </List.Item>
+                  )}
+                />
+              </>
+            ),
+          },
+        ]}
+      />
+
+      <Drawer
+        title="Add New Group"
+        placement="right"
+        onClose={() => setDrawerOpen(false)}
+        open={drawerOpen}
+      >
+        <Form form={form} onFinish={handleAddGroup} layout="vertical">
+          <Form.Item
+            name="name"
+            label="Group Name"
+            rules={[{ required: true, message: "Please enter the group name!" }]}
+          >
+            <Input placeholder="Enter group name..." />
+          </Form.Item>
+          <Form.Item
+            name="password"
+            label="Group Password"
+            rules={[{ required: true, message: "Please enter the group password!" }]}
+          >
+            <Input.Password style={{ padding: "8px" }} placeholder="Enter password..." />
+          </Form.Item>
+          <Button type="primary" htmlType="submit" block>
+            Add
+          </Button>
+        </Form>
+      </Drawer>
+
     </div>
   );
 }

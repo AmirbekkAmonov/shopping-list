@@ -12,14 +12,19 @@ import {
   faDesktop,
 } from "@fortawesome/free-solid-svg-icons";
 import useAuth from "@/hooks/useAuth";
+import { useGroups } from "@/hooks/useGroups";
+import { Popover, Input, Button, } from "antd";
 
 function Header() {
-  const { darkMode, setDarkMode, language, setLanguage, themeMode, setThemeMode } = useTheme();
+  const { darkMode, setDarkMode, setLanguage, themeMode, setThemeMode } = useTheme();
   const [isThemeOpen, setThemeOpen] = useState(false);
   const [isLangOpen, setLangOpen] = useState(false);
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [isNotificationOpen, setNotificationOpen] = useState(false);
-  const {logout } = useAuth();
+  const { logout } = useAuth();
+  const [group, setGroup] = useState('');
+  const { groups, isLoadingGroups, isErrorGroups } = useGroups(group);
+  const [password, setPassword] = useState("");
 
   const themeRef = useRef(null);
   const langRef = useRef(null);
@@ -47,6 +52,31 @@ function Header() {
     }
   };
 
+  const handleJoin = (groupId) => {
+    console.log(`Joining group with ID: ${groupId} using password: ${password}`);
+    setPassword("");
+  };
+
+  const joinPopoverContent = (
+    <div>
+      <Input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        style={{ width: "100%", padding: "8px", borderRadius: "5px", border: "1px solid #ccc" }}
+        placeholder="Enter group password"
+      />
+      <Button
+        type="primary"
+        style={{ backgroundColor: "green", color: "white", width: "100%", marginTop: "10px" }}
+        onClick={() => handleJoin(group)}
+      >
+        Join
+      </Button>
+    </div>
+  );
+
+
   return (
     <header className={`header ${darkMode ? "dark" : ""}`}>
       <div className="container">
@@ -58,10 +88,43 @@ function Header() {
           </button>
           <label>
             <FontAwesomeIcon icon={faMagnifyingGlass} className="search-icon" style={{ color: "#A9AAAC" }} />
-            <input type="text" placeholder="Search..." className="input" />
+            <input
+              type="text"
+              placeholder="Search..."
+              className="input"
+              value={group}
+              onChange={(e) => setGroup(e.target.value)}
+            />
+            {group.length > 0 && (
+              <div className="search-results">
+                {groups.length > 0 && !isLoadingGroups && <h3>Groups</h3>}
+                <ul>
+                  {isLoadingGroups ? (
+                    <p className="loading">Loading groups...</p>
+                  ) : groups.length > 0 ? (
+                    groups.map((user, index) => (
+                      <li key={user.id || index + 1}>
+                        <div className="user">
+                          <div className="user-info">
+                            <h4>{user.name}</h4>
+                            <span>{new Date(user.createdAt).toISOString().slice(0, 19).replace('T', ' ')}</span>
+                          </div>
+                          <p>Created By: <span>{user.owner.name}</span></p>
+                        </div>
+                        <Popover content={joinPopoverContent} title="Group password" trigger="click">
+                          <button className="join-btn">Join</button>
+                        </Popover>
+                      </li>
+                    ))
+                  ) : (
+                    <p className="no-results">No groups found</p>
+                  )}
+                </ul>
+              </div>
+            )}
           </label>
         </div>
-
+        {isErrorGroups && console.log("Error fetching groups: ", isErrorGroups)}
         <div className="flex">
           <div className="relative" ref={themeRef}>
             <button className="icon-btn" onClick={() => setThemeOpen(!isThemeOpen)}>
@@ -115,6 +178,7 @@ function Header() {
               </div>
             )}
           </div>
+
           <button className="icon-btn">
             <FontAwesomeIcon icon={faCog} />
           </button>
@@ -134,6 +198,7 @@ function Header() {
               </div>
             )}
           </div>
+
           <div className="relative" ref={menuRef}>
             <button className="avatar" onClick={() => setMenuOpen(!isMenuOpen)}>
               <img src="avatar.jpg" alt="User Avatar" />

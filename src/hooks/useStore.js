@@ -45,6 +45,15 @@ export const useStore = create((set) => ({
       return { user };
     }),
 
+    groups: JSON.parse(localStorage.getItem("groups")) || [],
+  
+    addGroup: (newGroup) =>
+      set((state) => {
+        const updatedGroups = [...state.groups, newGroup];
+        localStorage.setItem("groups", JSON.stringify(updatedGroups));
+        return { groups: updatedGroups };
+      }),
+
   logout: () =>
     set(() => {
       localStorage.removeItem("token");
