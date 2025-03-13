@@ -31,9 +31,9 @@ const fetchMyGroups = async () => {
 };
 
 // Guruhni o'chirish (deleteGroup) funksiyasi
-const deleteGroup = async (groupId) => {
-  if (!groupId) throw new Error("Group ID is required");
-  const { data } = await API.delete(`/groups/${groupId}`);
+const leaveGroup = async (groupId) => {
+  if (!groupId) throw new Error("Guruh IDsi kerak");
+  const { data } = await API.post(`/groups/${groupId}/leave`);
   return data;
 };
 
@@ -89,7 +89,7 @@ const useMyGroups = () => {
 // **useDeleteGroup** - Guruhni o'chirish uchun 
 const useDeleteGroup = () => {
   return useMutation({
-    mutationFn: deleteGroup,
+    mutationFn: leaveGroup,
   });
 };
 
