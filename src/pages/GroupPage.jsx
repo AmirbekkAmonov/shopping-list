@@ -80,7 +80,7 @@ function GroupPage() {
       type: "divider",
     },
     {
-      label: "Delete Group",
+      label: user.username === group.owner.username ? "Delete Group" : "Leave Group",
       key: "delete-group",
       onClick: () => confirmDeleteGroup(group._id),
       danger: true,
