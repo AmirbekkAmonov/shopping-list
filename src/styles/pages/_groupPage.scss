@@ -62,9 +62,9 @@
             display: flex;
             align-items: center;
             gap: 10px;
-
         }
     }
+
     .group-content {
         width: 100%;
         height: calc(100vh - 165px);
@@ -74,7 +74,8 @@
         align-items: start;
         gap: 20px;
 
-        .group-info, .group-members {
+        .group-info,
+        .group-members {
             display: flex;
             flex-direction: column;
             gap: 20px;
@@ -109,19 +110,131 @@
                         justify-content: center;
                         cursor: pointer;
                     }
+
                 }
 
                 h4 {
                     text-transform: capitalize;
                     font-size: calc(1.275rem + .3vw);
                     font-weight: 600;
-                    
+
                     span {
                         background-color: #0075fb;
                         color: #FFF;
                         padding: 2px 10px;
                         border-radius: 5px;
                         margin-right: 5px;
+                        font-size: 20px;
+                    }
+                }
+
+            }
+
+            .items-list {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+                border: 1px solid $border-color;
+                padding: 10px;
+                border-radius: 5px;
+            }
+
+            .item-card {
+                display: flex;
+                align-items: center;
+                padding: 10px 0;
+                border-bottom: 1px solid #ddd;
+
+                &:last-child {
+                    border-bottom: none;
+                }
+            }
+
+            .avatar {
+                width: 40px;
+                height: 40px;
+                background: royalblue;
+                color: white;
+                font-weight: bold;
+                font-size: 18px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                margin-right: 15px;
+            }
+
+            .item-content {
+                flex-grow: 1;
+            }
+
+            .item-title {
+                margin: 0;
+                font-size: 16px;
+                font-weight: bold;
+            }
+
+            .item-meta {
+                font-size: 12px;
+                color: gray;
+            }
+
+            .item-actions {
+                display: flex;
+                gap: 10px;
+            }
+
+            .btn {
+                width: 35px;
+                height: 35px;
+                border: none;
+                border-radius: 5px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+            }
+
+            .green {
+                background: #2ecc71;
+                color: white;
+            }
+
+            .red {
+                background: #e74c3c;
+                color: white;
+            }
+
+            .members-list {
+                list-style: none;
+                padding: 0;
+                border: 1px solid $border-color;
+                padding: 10px;
+                border-radius: 5px;
+
+                .member-item {
+                    display: flex;
+                    align-items: center;
+                    padding: 10px 0;
+                    border-bottom: 1px solid #ddd;
+
+                    &:last-child {
+                        border-bottom: none;
+                    }
+
+
+                    .member-info {
+                        display: flex;
+                        align-items: start;
+                        flex-direction: column;
+                        text-transform: capitalize;
+                        gap: 5px;
+
+                        .member-name {
+                            font-size: 16px;
+                            color: #333;
+                            font-weight: bold;
+                        }
                     }
                 }
             }
@@ -144,10 +257,13 @@ body.dark {
     .menu-btn-group {
         color: #FFF;
     }
-    .group-info, .group-members {
+
+    .group-info,
+    .group-members {
         background-color: #1B232D !important;
         border: 1px solid #ccc !important;
     }
+
     .input {
         background-color: #1B232D !important;
         color: #A9AAAC !important;

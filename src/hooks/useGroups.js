@@ -1,5 +1,5 @@
 import API from "@/services/api";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 const searchGroup = async (searchText) => {
   if (!searchText || searchText.length < 2) return []; 
@@ -12,6 +12,17 @@ const searchMember = async (searchText) => {
   const { data } = await API.get(`/users/search?q=${searchText}`);
   return data;
 }
+
+const joinGroup = async ({ groupId, password }) => {
+  if (!groupId || !password) throw new Error("Group ID and password are required");
+  const { data } = await API.post(`/groups/${groupId}/join`, { password });
+  return data;
+};
+
+const fetchMyGroups = async () => {
+  const { data } = await API.get("/groups"); 
+  return data;
+};
 
 const useGroups = (searchText) => {
   const {
@@ -39,4 +50,24 @@ const useMember = (searchText) =>{
       return { members, isLoadingMember, isErrorMember };
 }
 
-export { useGroups, useMember };
+const useJoinGroup = () => {
+  return useMutation({
+    mutationFn: joinGroup, 
+  });
+};
+
+const useMyGroups = () => {
+  const {
+    data: myGroups = [],
+    isLoading: isLoadingMyGroups,
+    refetch
+  } = useQuery({
+    queryFn: fetchMyGroups,
+    queryKey: ["myGroups"],
+  });
+
+  return { myGroups, isLoadingMyGroups, refetch };
+};
+
+
+export { useGroups, useMember, useJoinGroup, useMyGroups };

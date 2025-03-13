@@ -13,7 +13,9 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import useAuth from "@/hooks/useAuth";
 import { useGroups } from "@/hooks/useGroups";
-import { Popover, Input, Button, } from "antd";
+import { Popover, Input, Button, message } from "antd";
+import { useJoinGroup } from "@/hooks/useGroups";
+import { useMyGroups } from "@/hooks/useGroups";
 
 function Header() {
   const { darkMode, setDarkMode, setLanguage, themeMode, setThemeMode } = useTheme();
@@ -22,9 +24,12 @@ function Header() {
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [isNotificationOpen, setNotificationOpen] = useState(false);
   const { logout } = useAuth();
+  const [password, setPassword] = useState("");
   const [group, setGroup] = useState('');
   const { groups, isLoadingGroups, isErrorGroups } = useGroups(group);
-  const [password, setPassword] = useState("");
+  const { mutate: joinGroup, isLoading, isError, error } = useJoinGroup();
+  const {refetch} = useMyGroups();
+
 
   const themeRef = useRef(null);
   const langRef = useRef(null);
@@ -52,12 +57,36 @@ function Header() {
     }
   };
 
-  const handleJoin = (groupId) => {
-    console.log(`Joining group with ID: ${groupId} using password: ${password}`);
-    setPassword("");
+  const handleJoin = (group) => {
+  
+    if (!group._id) {
+      message.error("Group ID is missing!");
+      return;
+    }
+  
+    if (!password) {
+      message.warning("Please enter a password.");
+      return;
+    }
+  
+    joinGroup(
+      { groupId: group._id, password },
+      {
+        onSuccess: () => {
+          message.success("Successfully joined the group!");
+          setPassword("");
+          setGroup("");
+          refetch();
+        },
+        onError: (err) => {
+          message.error(err.response?.data?.error || "Failed to join the group.");
+        },
+      }
+    );
   };
-
-  const joinPopoverContent = (
+  
+  
+  const joinPopoverContent = (group) => (
     <div>
       <Input
         type="password"
@@ -70,12 +99,14 @@ function Header() {
         type="primary"
         style={{ backgroundColor: "green", color: "white", width: "100%", marginTop: "10px" }}
         onClick={() => handleJoin(group)}
+        disabled={isLoading}
       >
-        Join
+        {isLoading ? "Joining..." : "Join"}
       </Button>
+      {isError && message.error(error?.message || "Failed to join")}
     </div>
   );
-
+  
 
   return (
     <header className={`header ${darkMode ? "dark" : ""}`}>
@@ -102,16 +133,16 @@ function Header() {
                   {isLoadingGroups ? (
                     <p className="loading">Loading groups...</p>
                   ) : groups.length > 0 ? (
-                    groups.map((user, index) => (
-                      <li key={user.id || index + 1}>
+                    groups.map((group, index) => (
+                      <li key={group.id || index + 1}>
                         <div className="user">
                           <div className="user-info">
-                            <h4>{user.name}</h4>
-                            <span>{new Date(user.createdAt).toISOString().slice(0, 19).replace('T', ' ')}</span>
+                            <h4>{group.name}</h4>
+                            <span>{new Date(group.createdAt).toISOString().slice(0, 19).replace('T', ' ')}</span>
                           </div>
-                          <p>Created By: <span>{user.owner.name}</span></p>
+                          <p>Created By: <span>{group.owner.name}</span></p>
                         </div>
-                        <Popover content={joinPopoverContent} title="Group password" trigger="click">
+                        <Popover content={() => joinPopoverContent(group)} title="Group password" trigger="click">
                           <button className="join-btn">Join</button>
                         </Popover>
                       </li>

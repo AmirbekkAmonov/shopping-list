@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTheme } from "@/hooks/useTheme";
 import { useStore } from "@/hooks/useStore";
 import { FaUser, FaCog, FaLock, FaPowerOff, FaEllipsisV, FaUsers, FaPlus } from "react-icons/fa";
-import { Collapse, Button, Drawer, Form, Input, List } from "antd";
-import useAuth from "../../hooks/useAuth";
+import { Collapse, Button, Drawer, Form, Input, List, message } from "antd";
+import useAuth from "@/hooks/useAuth";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useMyGroups } from "@/hooks/useGroups";
 
 function Sidebar() {
   const { darkMode } = useTheme();
@@ -16,13 +17,30 @@ function Sidebar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [form] = Form.useForm();
 
+  const { myGroups, isLoadingMyGroups } = useMyGroups();
+  const [joinedGroups, setJoinedGroups] = useState([]);
+
+  const prevGroupsRef = useRef(myGroups);
+
+  useEffect(() => {
+    if (prevGroupsRef.current !== myGroups) {
+      setJoinedGroups(myGroups);
+      prevGroupsRef.current = myGroups; 
+    }
+  }, [myGroups]);
+  
+
   const handleAddGroup = (values) => {
     addGroup({ name: values.name, password: values.password, id: Date.now() });
     form.resetFields();
     setDrawerOpen(false);
   };
+
   const navigate = useNavigate();
   const location = useLocation();
+  const handleNavigation = (path) => {
+    navigate(path);
+  };
 
   return (
     <div className={`sidebar ${darkMode ? "dark" : ""}`}>
@@ -40,22 +58,32 @@ function Sidebar() {
         </div>
         <div className={`dropdown ${isOpen ? "open" : ""}`}>
           <ul>
-            <li><FaUser /> My Account</li>
-            <li><FaCog /> Settings</li>
-            <li><FaLock /> Lock Screen</li>
-            <li onClick={logout}><FaPowerOff /> Logout</li>
+            <li onClick={() => handleNavigation("/profile")}>
+              <FaUser /> My Account
+            </li>
+            <li onClick={() => handleNavigation("/settings")}>
+              <FaCog /> Settings
+            </li>
+            <li onClick={() => handleNavigation("/lock-screen")}>
+              <FaLock /> Lock Screen
+            </li>
+            <li onClick={logout}>
+              <FaPowerOff /> Logout
+            </li>
           </ul>
         </div>
       </div>
+
       <Collapse
-        style={{ marginTop: "10px"  }}
+        style={{ marginTop: "10px" }}
         className="sidebar-collapse"
+        defaultActiveKey={["1"]}
         items={[
           {
             key: "1",
             label: (
               <div className="collapse-label">
-                <FaUsers  /> Groups
+                <FaUsers /> Groups
               </div>
             ),
             children: (
@@ -69,20 +97,20 @@ function Sidebar() {
                 >
                   Add Group
                 </Button>
+
                 <List
                   style={{ overflow: "hidden" }}
                   size="small"
                   bordered
-                  dataSource={groups}
+                  loading={isLoadingMyGroups} 
+                  dataSource={[...(groups || []), ...(myGroups || [])]}
                   renderItem={(group) => (
-                    <List.Item
-                      className={`group-item ${location.pathname === `/groups/${group.id}` ? "active" : ""}`}
-                      onClick={() => navigate(`/groups/${group.id}`)}
-                    >
-                      <strong>{group.name}</strong>
+                    <List.Item onClick={() => navigate(`/groups/${group._id || "default"}`)} style={{ cursor: "pointer" }}>
+                      <strong>{group?.name || "No Name"}</strong>
                     </List.Item>
                   )}
                 />
+
               </>
             ),
           },
@@ -115,7 +143,6 @@ function Sidebar() {
           </Button>
         </Form>
       </Drawer>
-
     </div>
   );
 }

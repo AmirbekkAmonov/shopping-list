@@ -1,23 +1,28 @@
 import React, { useState } from "react";
-import { Modal, Input, Dropdown, Button, List } from "antd";
+import { Modal, Input, Dropdown, Button, List, Spin } from "antd";
 import { useParams } from "react-router-dom";
-import { useStore } from "@/hooks/useStore";
+import { FaShoppingCart, FaTimes, FaCheck } from "react-icons/fa";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
 import { useMember } from "@/hooks/useGroups";
+import { useMyGroups } from "../hooks/useGroups";
+import { useStore } from "../hooks/useStore";
 
 function GroupPage() {
   const { id } = useParams();
-  const groups = useStore((state) => state.groups);
-  const group = groups.find((g) => g.id === Number(id));
-  const user = useStore((state) => state.user);
+  const { myGroups, isLoadingMyGroups } = useMyGroups();
+  const group = myGroups.find((g) => String(g._id) === String(id));
   const [member, setMember] = useState('');
   const { members, isLoadingMember, isErrorMember } = useMember(member);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const user = useStore((state) => state.user);
+
 
   if (!group) {
     return <h2>Guruh topilmadi!</h2>;
+  }
+  if (isLoadingMyGroups) {
+    return <Spin size="large" />;
   }
 
   const showModal = () => {
@@ -69,8 +74,9 @@ function GroupPage() {
           <div className="owner">
             <h3>Owner:</h3>
             <p>
-              <span>{user?.username ? user.username[0].toUpperCase() : ""}</span>
-              {user ? user.username : "No username"} ({user ? user.name : "Guest"})
+              <span>{group?.owner?.name ? group.owner.name[0].toUpperCase() : ""}</span>
+              {group?.owner?.name ? group.owner.name.charAt(0).toUpperCase() + group.owner.name.slice(1) : "Guest"}
+              ({group?.owner ? group.owner.username : "No username"})
             </p>
           </div>
           <Dropdown menu={{ items }} trigger={["click"]}>
@@ -80,24 +86,68 @@ function GroupPage() {
           </Dropdown>
         </div>
       </div>
-
       <div className="group-content">
         <div className="group-info">
           <div className="group-description">
-            <h4>Items <span>0</span></h4>
+            <h4>Items <span>{group.items.length}</span></h4>
             <div className="group-items">
               <input type="text" className="input" placeholder="Add Title" />
               <button className="add-item">+</button>
             </div>
           </div>
+          <ul className="items-list">
+            {group.items.length > 0 ? (
+              group.items.map((item, index) => (
+                <li key={index} className="item-card">
+                  <div className="avatar">{item.title[0].toUpperCase()}</div>
+                  <div className="item-content">
+                    <h4 className="item-title">{item.title}</h4>
+                    <p className="item-meta">
+                      Created By {group.owner?.name || "Unknown"} (
+                      {new Date(item.createdAt).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                      ,{new Date(item.createdAt).toLocaleDateString()})
+                    </p>
+                  </div>
+                  <div className="item-actions">
+                    <button className="btn green">
+                      <FaShoppingCart />
+                    </button>
+                    {user?.username === group?.owner?.username && (
+                      <button className="btn red">
+                        <FaTimes />
+                      </button>
+                    )}
+                  </div>
+                </li>
+              ))
+            ) : (
+              <p>Hozircha hech qanday item yo'q.</p>
+            )}
+          </ul>
         </div>
+
         <div className="group-members">
           <div className="group-description">
-            <h4>Members <span>0</span></h4>
+            <h4>
+              Members <span>{group.members.length}</span>
+            </h4>
           </div>
+          <ul className="members-list">
+            {group.members.map((member) => (
+              <li key={member.id} className="member-item">
+                <div className="avatar">{member.username[0].toUpperCase()}</div>
+                <div className="member-info">
+                  <span className="member-name">{member.name}</span>
+                  <span className="member-username">{member.username}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
-
       <Modal
         title="Add New Member"
         open={isModalOpen}
@@ -129,7 +179,6 @@ function GroupPage() {
           style={{ marginTop: "10px", maxHeight: "250px", overflowY: "auto", scrollbarWidth: "none" }}
         />
         {isErrorMember && <p style={{ color: "red" }}>Error loading members</p>}
-
       </Modal>
     </div>
   );
