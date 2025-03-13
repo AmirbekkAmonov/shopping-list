@@ -97,7 +97,7 @@ function GroupPage() {
               ({group?.owner ? group.owner.username : "No username"})
             </p>
           </div>
-          <Dropdown menu={{ items }} trigger={["click"]}>
+          <Dropdown menu={{ items }} trigger={["click"]} overlayClassName="custom-dropdown">
             <button onClick={(e) => e.preventDefault()} className="menu-btn-group">
               <FontAwesomeIcon icon={faEllipsisVertical} />
             </button>
@@ -116,7 +116,7 @@ function GroupPage() {
           <ul className="items-list">
             {group.items.length > 0 ? (
               group.items.map((item, index) => (
-                <li key={index} className="item-card">
+                <li key={`${item._id}-${index}`} className="item-card">
                   <div className="avatar">{item.title[0].toUpperCase()}</div>
                   <div className="item-content">
                     <h4 className="item-title">{item.title}</h4>
@@ -154,8 +154,8 @@ function GroupPage() {
             </h4>
           </div>
           <ul className="members-list">
-            {group.members.map((member) => (
-              <li key={member.id} className="member-item">
+            {group.members.map((member, index) => (
+              <li key={`${member.id}-${index}`} className="member-item">
                 <div className="avatar">{member.username[0].toUpperCase()}</div>
                 <div className="member-info">
                   <span className="member-name">{member.name}</span>
@@ -166,12 +166,13 @@ function GroupPage() {
           </ul>
         </div>
       </div>
-      <Modal
+      <Modal 
+        className="custom-modal"
         title="Add New Member"
         open={isModalOpen}
         onCancel={handleCancel}
         footer={[
-          <Button key="cancel" onClick={handleCancel}>
+          <Button key="cancel" onClick={handleCancel} className="cancel-btn">
             Cancel
           </Button>
         ]}
@@ -184,13 +185,14 @@ function GroupPage() {
           placeholder="Enter member name"
           value={member}
           onChange={(e) => setMember(e.target.value)}
+          className="member-input"
         />
         <List
           bordered
           dataSource={members}
           loading={isLoadingMember}
           renderItem={(item) => (
-            <List.Item onClick={() => handleSelectMember(item)} style={{ cursor: "pointer" }}>
+            <List.Item onClick={() => handleSelectMember(item)} style={{ cursor: "pointer" }} className="member-item">
               {item.username} (@{item.name})
             </List.Item>
           )}

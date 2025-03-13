@@ -105,7 +105,7 @@ function Sidebar() {
                   loading={isLoadingMyGroups} 
                   dataSource={[...(groups || []), ...(myGroups || [])]}
                   renderItem={(group) => (
-                    <List.Item onClick={() => navigate(`/groups/${group._id || "default"}`)} style={{ cursor: "pointer" }}>
+                    <List.Item onClick={() => navigate(`/groups/${group._id || "default"}`)} style={{ cursor: "pointer" }} className="group-item">
                       <strong>{group?.name || "No Name"}</strong>
                     </List.Item>
                   )}

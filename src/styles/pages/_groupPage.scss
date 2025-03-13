@@ -15,6 +15,10 @@
         justify-content: space-between;
         gap: 20px;
 
+        h3 {
+            font-size: calc(1.275rem + .3vw);
+        }
+
         .group-actions {
             display: flex;
             align-items: center;
@@ -172,6 +176,7 @@
                 margin: 0;
                 font-size: 16px;
                 font-weight: bold;
+                text-transform: capitalize;
             }
 
             .item-meta {
@@ -223,7 +228,6 @@
                         border-bottom: none;
                     }
 
-
                     .member-info {
                         display: flex;
                         align-items: start;
@@ -233,7 +237,6 @@
 
                         .member-name {
                             font-size: 16px;
-                            color: #333;
                             font-weight: bold;
                         }
                     }
@@ -268,5 +271,100 @@ body.dark {
     .input {
         background-color: #1B232D !important;
         color: #A9AAAC !important;
+    }
+
+    .members-list,
+    .items-list {
+        background-color: #151b22cc !important;
+        border: 1px solid #ccc !important;
+    }
+
+    .custom-dropdown .ant-dropdown-menu {
+        background-color: #1B232D !important;
+        border: 1px solid #ccc !important;
+    }
+
+    .custom-dropdown .ant-dropdown-menu-item {
+        color: #fff !important;
+
+        &:last-child {
+            background-color: #ff182bbb !important;
+
+            &:hover {
+                background-color: #ff0015 !important;
+            }
+        }
+    }
+    .custom-dropdown .ant-dropdown-menu-item:hover {
+        background-color: #151b22cc !important;
+    }
+    .custom-modal .ant-modal-content {
+        background-color: #1B232D !important;
+        border: 1px solid #ccc !important;
+
+        .ant-modal-header {
+            background-color: #1B232D !important;
+            border: none !important;
+            
+            .ant-modal-title {
+                color: #A9AAAC !important;
+            } 
+        }
+        .ant-modal-close-x  {
+            border: 1px solid #ccc !important;
+            border-radius: 5px !important;
+            padding: 5px !important;
+            color: #A9AAAC !important;
+
+            &:hover {
+                background-color: #151b22cc !important;
+                color: #e1e1e1 !important;
+            }
+        }
+
+        .ant-modal-body {
+            background-color: #1B232D !important;
+            border: none !important;
+            color: #FFF !important;
+
+            .member-input {
+                background-color: #1B232D !important;
+                color: #A9AAAC !important;
+
+                &::placeholder {
+                    color: #A9AAAC !important;
+                }
+            }
+
+            .members-list {
+                background-color: #1B232D !important;
+                border: 1px solid #ccc !important;
+                color: #FFF !important;
+            }
+            .ant-empty-description {
+                color: #A9AAAC !important;
+            }
+            .member-item {
+                border-bottom: 1px solid #ccc !important;
+            }
+            .ant-list-item {
+                color: #A9AAAC !important;
+            }
+           
+        }
+
+        .ant-modal-footer {
+           
+            .cancel-btn {
+                background-color: #1B232D !important;
+                border: 1px solid #ccc !important;
+                color: #FFF !important;
+
+                &:hover {
+                    border: 1px solid #0075fb !important;
+                    color: #0075fb !important;
+                }
+            }
+        }
     }
 }
