@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, Input, Dropdown, Button, List, Spin } from "antd";
 import { useParams } from "react-router-dom";
 import { FaShoppingCart, FaTimes, FaCheck } from "react-icons/fa";
@@ -16,10 +16,28 @@ function GroupPage() {
   const { members, isLoadingMember, isErrorMember } = useMember(member);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const user = useStore((state) => state.user);
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoadingTimeout(true);
+    }, 5000); 
+
+    return () => clearTimeout(timer); 
+  }, []);
 
   if (!group) {
-    return <h2>Guruh topilmadi!</h2>;
+    return (
+      <div style={{ textAlign: "center", marginTop: "20vh" }}>
+        {loadingTimeout ? (
+          <p style={{ color: "red", fontSize: "18px", textAlign: "center" }}>
+            Ma'lumot yuklanmadi. Iltimos, qayta urinib ko'ring!
+          </p>
+        ) : (
+          <Spin size="large" />
+        )}
+      </div>
+    );
   }
   if (isLoadingMyGroups) {
     return <Spin size="large" />;
