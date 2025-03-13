@@ -25,10 +25,10 @@ function Sidebar() {
   useEffect(() => {
     if (prevGroupsRef.current !== myGroups) {
       setJoinedGroups(myGroups);
-      prevGroupsRef.current = myGroups; 
+      prevGroupsRef.current = myGroups;
     }
   }, [myGroups]);
-  
+
 
   const handleAddGroup = (values) => {
     addGroup({ name: values.name, password: values.password, id: Date.now() });
@@ -37,7 +37,6 @@ function Sidebar() {
   };
 
   const navigate = useNavigate();
-  const location = useLocation();
   const handleNavigation = (path) => {
     navigate(path);
   };
@@ -102,7 +101,7 @@ function Sidebar() {
                   style={{ overflow: "hidden" }}
                   size="small"
                   bordered
-                  loading={isLoadingMyGroups} 
+                  loading={isLoadingMyGroups}
                   dataSource={[...(groups || []), ...(myGroups || [])]}
                   renderItem={(group) => (
                     <List.Item onClick={() => navigate(`/groups/${group._id || "default"}`)} style={{ cursor: "pointer" }} className="group-item">
@@ -117,11 +116,13 @@ function Sidebar() {
         ]}
       />
 
+
       <Drawer
         title="Add New Group"
         placement="right"
         onClose={() => setDrawerOpen(false)}
         open={drawerOpen}
+        className="custom-dark-drawer"
       >
         <Form form={form} onFinish={handleAddGroup} layout="vertical">
           <Form.Item
@@ -136,13 +137,15 @@ function Sidebar() {
             label="Group Password"
             rules={[{ required: true, message: "Please enter the group password!" }]}
           >
-            <Input.Password style={{ padding: "8px" }} placeholder="Enter password..." />
+            <Input.Password placeholder="Enter password..." style={{padding: "8px"}} />
           </Form.Item>
           <Button type="primary" htmlType="submit" block>
             Add
           </Button>
         </Form>
       </Drawer>
+
+
     </div>
   );
 }

@@ -122,23 +122,23 @@
       color: #007bff;
     }
   }
-  
+
   .group-item {
     padding: 12px;
     background: white;
     cursor: pointer !important;
     transition: all 0.3s ease-in-out;
   }
-  
+
   .group-item:hover {
     background: #f4f4f460;
   }
-  
+
   .group-item.active {
     background: #f0f0f0;
     font-weight: bold;
   }
-  
+
 }
 
 .sidebar.dark {
@@ -205,5 +205,49 @@
         background-color: #3f5774;
       }
     }
+  }
+
+  .custom-dark-drawer,
+  .ant-drawer-content {
+    background-color: #1f1f1f !important;
+    color: #fff !important;
+  }
+
+  .custom-dark-drawer,
+  .ant-drawer-header {
+    background-color: #333 !important;
+    border-bottom: 1px solid #444;
+  }
+
+  .custom-dark-drawer .ant-drawer-title {
+    color: #ff9800 !important;
+  }
+
+  .custom-dark-drawer .ant-drawer-close {
+    color: #fff !important;
+  }
+
+  .custom-dark-drawer .ant-form-item-label>label {
+    color: #fff !important;
+  }
+
+  .custom-dark-drawer .ant-input {
+    background-color: #333 !important;
+    color: #fff !important;
+    border: 1px solid #555 !important;
+  }
+
+  .custom-dark-drawer .ant-input::placeholder {
+    color: #aaa !important;
+  }
+
+  .custom-dark-drawer .ant-btn-primary {
+    background-color: #ff9800 !important;
+    border-color: #ff9800 !important;
+  }
+
+  .custom-dark-drawer .ant-btn-primary:hover {
+    background-color: #e68900 !important;
+    border-color: #e68900 !important;
   }
 }
