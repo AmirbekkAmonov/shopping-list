@@ -51,6 +51,20 @@ const deleteGroup = async (groupId) => {
   return data;
 };
 
+// Guruhga foydalanuvchini qo'shish (addMember) funksiyasi
+const addMember = async ({ groupId, memberId }) => {
+  if (!groupId || !memberId) throw new Error("Group ID and Member ID are required"); 
+  const { data } = await API.post(`/groups/${groupId}/members`, { memberId });
+  return data;
+};
+
+// Guruhdan foydalanuvchini o'chirish (removeMember) funksiyasi
+const removeMember = async ({ groupId, memberId }) => {
+  if (!groupId || !memberId) throw new Error("Group ID and Member ID are required");
+  const { data } = await API.delete(`/groups/${groupId}/members/${memberId}`);
+  return data;
+};
+
 // **useGroups** - Guruhlarni qidirish uchun 
 const useGroups = (searchText) => {
   const {
@@ -164,7 +178,6 @@ const useConfirmLeaveGroup = () => {
 };
 
 // **useConfirmDeleteGroup** - Guruhni o'chirishni tasdiqlash uchun
-
 const useConfirmDeleteGroup = () => {
   const { refetch } = useMyGroups();
   const navigate = useNavigate();
@@ -194,6 +207,38 @@ const useConfirmDeleteGroup = () => {
   return confirmDeleteGroup;
 };
 
+// **useAddMember** - Guruhga foydalanuvchini qo'shish uchun
+const useAddMember = () => {
+  const { refetch } = useMyGroups();
+
+  return useMutation({
+    mutationFn: addMember,
+    onSuccess: async (data) => {
+      message.success("Member successfully added to the group!");
+      await refetch(); 
+    },
+    onError: (error) => {
+      message.error(`Error adding member: ${error.response?.data?.message || error.message}`);
+    },
+  });
+};
+
+// **useRemoveMember** - Guruhdan foydalanuvchini o'chirish uchun
+const useRemoveMember = () => {
+  const { refetch } = useMyGroups();
+  return useMutation({
+    mutationFn: removeMember,
+    onSuccess: async () => { 
+      message.success("Member removed successfully!");
+      await refetch();
+    },
+    onError: (error) => {
+      message.error(`Error removing member: ${error.response?.data?.message || error.message}`);
+    },
+  });
+};
+
+
 export {
   useGroups,
   useMember,
@@ -202,5 +247,7 @@ export {
   useDeleteGroup,
   useCreateGroup,
   useConfirmLeaveGroup,
-  useConfirmDeleteGroup
+  useConfirmDeleteGroup,
+  useAddMember,
+  useRemoveMember
 };

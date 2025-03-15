@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Input, Dropdown, Button, List, Spin } from "antd";
+import { Modal, Input, Dropdown, Button, List, Spin, message } from "antd";
 import { useParams } from "react-router-dom";
 import { FaShoppingCart, FaTimes } from "react-icons/fa";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -8,7 +8,9 @@ import {
   useMyGroups,
   useMember,
   useConfirmLeaveGroup,
-  useConfirmDeleteGroup
+  useConfirmDeleteGroup,
+  useAddMember,
+  useRemoveMember
 } from "@/hooks/useGroups";
 import { useStore } from "@/hooks/useStore";
 
@@ -24,15 +26,19 @@ function GroupPage() {
   const [loadingTimeout, setLoadingTimeout] = useState(false);
   const confirmLeaveGroup = useConfirmLeaveGroup();
   const confirmDeleteGroup = useConfirmDeleteGroup();
+  const { mutate: addMemberMutate } = useAddMember();
+  const { mutate: removeMemberMutate } = useRemoveMember();
 
+  // guruh ma'lumotlarini yuklashdagi xatolik nazorati vaqti 
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoadingTimeout(true);
-    },5000);
+    }, 5000);
 
     return () => clearTimeout(timer);
   }, []);
 
+  // guruh ma'lumotlarini yuklashdagi xatolik nazorati
   if (!group) {
     return (
       <div style={{ textAlign: "center", marginTop: "20vh" }}>
@@ -46,33 +52,57 @@ function GroupPage() {
       </div>
     );
   }
+
+  // guruh loadingi
   if (isLoadingMyGroups) {
     return <Spin size="large" />;
   }
 
+  // modal
   const showModal = () => {
     setIsModalOpen(true);
   };
 
+  // modalni yopish
   const handleCancel = () => {
     setIsModalOpen(false);
     setMember("");
   };
+
+  // foydalanuvchi qo'shishni tasdiqlovchi modal va foydalanuvchi qo'shish
   const handleSelectMember = (member) => {
+    if (user._id !== group.owner._id) {
+      message.error("Only the group owner can add new members!");
+      return;
+    }
     Modal.confirm({
       title: "Confirm Member Addition",
       content: `Do you want to add ${member.name} (@${member.username}) to the group?`,
-      onOk: () => handleAddMember(member),
+      onOk: () => {
+        return new Promise((resolve, reject) => {
+          addMemberMutate(
+            { groupId: group._id, memberId: member._id },
+            {
+              onSuccess: () => {
+                setIsModalOpen(false);
+                setMember("");
+                message.success(`${member.name} was added successfully!`);
+                resolve();
+              },
+              onError: (error) => {
+                message.error(`Error adding member: ${error.response?.data?.message || error.message}`);
+                reject();
+              },
+            }
+          );
+        });
+      },
       okText: "Yes",
       cancelText: "No",
     });
   };
 
-  const handleAddMember = () => {
-    console.log("Added member:", member);
-    setIsModalOpen(false);
-    setMember("");
-  };
+  // Add Member va Delete Group va Leave Group tugmalari
   const items = [
     {
       label: "Add Member",
@@ -95,6 +125,37 @@ function GroupPage() {
       danger: true,
     },
   ];
+
+  // Guruhdan foydalanuvchini o'chirish
+  const handleRemoveMember = (member) => {
+    if (user._id !== group.owner._id) {
+      message.error("Only the group owner can remove members!");
+      return;
+    }
+    Modal.confirm({
+      title: "Confirm Member Removal",
+      content: `Are you sure you want to remove ${member.name} (@${member.username}) from the group?`,
+      onOk: () => {
+        return new Promise((resolve, reject) => {
+          removeMemberMutate(
+            { groupId: group._id, memberId: member._id },
+            {
+              onSuccess: () => {
+                message.success(`${member.name} has been removed from the group!`);
+                resolve();
+              },
+              onError: (error) => {
+                message.error(`Error removing member: ${error.response?.data?.message || error.message}`);
+                reject();
+              },
+            }
+          );
+        });
+      },
+      okText: "Yes",
+      cancelText: "No",
+    });
+  };
 
   return (
     <div className="group-page">
@@ -158,7 +219,6 @@ function GroupPage() {
             )}
           </ul>
         </div>
-
         <div className="group-members">
           <div className="group-description">
             <h4>
@@ -173,6 +233,11 @@ function GroupPage() {
                   <span className="member-name">{member.name}</span>
                   <span className="member-username">{member.username}</span>
                 </div>
+                {user._id === group.owner._id && member._id !== group.owner._id && (
+                  <button className="remove-btn" onClick={() => handleRemoveMember(member)}>
+                    <FaTimes />
+                  </button>
+                )}
               </li>
             ))}
           </ul>
