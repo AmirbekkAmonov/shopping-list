@@ -4,8 +4,8 @@ import { useStore } from "@/hooks/useStore";
 import { FaUser, FaCog, FaLock, FaPowerOff, FaEllipsisV, FaUsers, FaPlus } from "react-icons/fa";
 import { Collapse, Button, Drawer, Form, Input, List, message } from "antd";
 import useAuth from "@/hooks/useAuth";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useMyGroups } from "@/hooks/useGroups";
+import { Link, useNavigate } from "react-router-dom";
+import { useMyGroups, useCreateGroup } from "@/hooks/useGroups";
 
 function Sidebar() {
   const { darkMode } = useTheme();
@@ -13,11 +13,11 @@ function Sidebar() {
   const user = useStore((state) => state.user);
   const { logout } = useAuth();
   const groups = useStore((state) => state.groups);
-  const addGroup = useStore((state) => state.addGroup);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [form] = Form.useForm();
+  const createGroup = useCreateGroup();
 
-  const { myGroups, isLoadingMyGroups } = useMyGroups();
+  const { myGroups, isLoadingMyGroups, refetch } = useMyGroups();
   const [joinedGroups, setJoinedGroups] = useState([]);
 
   const prevGroupsRef = useRef(myGroups);
@@ -30,16 +30,28 @@ function Sidebar() {
   }, [myGroups]);
 
 
-  const handleAddGroup = (values) => {
-    addGroup({ name: values.name, password: values.password, id: Date.now() });
-    form.resetFields();
-    setDrawerOpen(false);
-  };
-
   const navigate = useNavigate();
   const handleNavigation = (path) => {
     navigate(path);
   };
+
+  const handleAddGroup = async (values) => {
+    try {
+      const existingGroup = myGroups.find((group) => group.name === values.name);
+      if (existingGroup) {
+        message.error("Bu nomdagi guruh allaqachon mavjud!");
+        return;
+      }
+      await createGroup.mutateAsync({ name: values.name, password: values.password });
+        form.resetFields();
+      setDrawerOpen(false);
+      await refetch(); 
+    } catch (error) {
+      console.error("Guruh yaratishda xato:", error.response?.data || error.message);
+      message.error(`Xatolik: ${error.response?.data?.message || "Noma'lum xatolik"}`);
+    }
+  };
+  
 
   return (
     <div className={`sidebar ${darkMode ? "dark" : ""}`}>
@@ -109,7 +121,6 @@ function Sidebar() {
                     </List.Item>
                   )}
                 />
-
               </>
             ),
           },
@@ -117,7 +128,7 @@ function Sidebar() {
       />
 
 
-      <Drawer
+<Drawer
         title="Add New Group"
         placement="right"
         onClose={() => setDrawerOpen(false)}
@@ -137,15 +148,13 @@ function Sidebar() {
             label="Group Password"
             rules={[{ required: true, message: "Please enter the group password!" }]}
           >
-            <Input.Password placeholder="Enter password..." style={{padding: "8px"}} />
+            <Input.Password placeholder="Enter password..." style={{ padding: "8px" }} />
           </Form.Item>
           <Button type="primary" htmlType="submit" block>
             Add
           </Button>
         </Form>
       </Drawer>
-
-
     </div>
   );
 }

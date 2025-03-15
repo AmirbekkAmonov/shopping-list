@@ -5,9 +5,9 @@ import { message, Modal } from "antd";
 
 // Guruhlarni qidirish (searchGroup) funksiyasi
 const searchGroup = async (searchText) => {
-  if (!searchText || searchText.length < 2) return []; 
-  const { data } = await API.get(`/groups/search?q=${searchText}`); 
-  return data; 
+  if (!searchText || searchText.length < 2) return [];
+  const { data } = await API.get(`/groups/search?q=${searchText}`);
+  return data;
 }
 
 // A'zolarni qidirish (searchMember) funksiyasi
@@ -26,49 +26,63 @@ const joinGroup = async ({ groupId, password }) => {
 
 // Mening guruhlarimni olish (fetchMyGroups) funksiyasi
 const fetchMyGroups = async () => {
-  const { data } = await API.get("/groups"); 
+  const { data } = await API.get("/groups");
   return data;
 };
 
-// Guruhni o'chirish (deleteGroup) funksiyasi
+// Guruh yaratish (createGroup) funksiyasi
+const createGroup = async ({ name, password }) => {
+  if (!name || !password) throw new Error("Guruh nomi va parol kerak");
+  const { data } = await API.post("/groups", { name, password });
+  return data;
+};
+
+// Guruhni tark etish (deleteGroup) funksiyasi
 const leaveGroup = async (groupId) => {
   if (!groupId) throw new Error("Guruh IDsi kerak");
   const { data } = await API.post(`/groups/${groupId}/leave`);
   return data;
 };
 
+// Guruhni o'chirish (deleteGroup) funksiyasi
+const deleteGroup = async (groupId) => {
+  if (!groupId) throw new Error("Guruh IDsi kerak");
+  const { data } = await API.delete(`/groups/${groupId}`);
+  return data;
+};
+
 // **useGroups** - Guruhlarni qidirish uchun 
 const useGroups = (searchText) => {
   const {
-    data: groups = [], 
+    data: groups = [],
     isLoading: isLoadingGroups,
     isError: isErrorGroups,
   } = useQuery({
-    queryFn: () => searchGroup(searchText), 
-    queryKey: searchText.length > 1 ? ["searchGroup", searchText] : ["searchGroup"], 
-    enabled: searchText.length > 1, 
+    queryFn: () => searchGroup(searchText),
+    queryKey: searchText.length > 1 ? ["searchGroup", searchText] : ["searchGroup"],
+    enabled: searchText.length > 1,
   });
   return { groups, isLoadingGroups, isErrorGroups };
 }
 
 // **useMember** - A'zolarni qidirish uchun 
-const useMember = (searchText) =>{
-    const {
-        data: members = [], 
-        isLoading: isLoadingMember,
-        isError: isErrorMember,
-      } = useQuery({
-        queryFn: () => searchMember(searchText), 
-        queryKey: searchText.length > 1 ? ["searchMember", searchText] : ["searchMember"], 
-        enabled: searchText.length > 1, 
-      });
-      return { members, isLoadingMember, isErrorMember };
+const useMember = (searchText) => {
+  const {
+    data: members = [],
+    isLoading: isLoadingMember,
+    isError: isErrorMember,
+  } = useQuery({
+    queryFn: () => searchMember(searchText),
+    queryKey: searchText.length > 1 ? ["searchMember", searchText] : ["searchMember"],
+    enabled: searchText.length > 1,
+  });
+  return { members, isLoadingMember, isErrorMember };
 }
 
 // **useJoinGroup** - Guruhga qo'shilish uchun 
 const useJoinGroup = () => {
   return useMutation({
-    mutationFn: joinGroup, 
+    mutationFn: joinGroup,
   });
 };
 
@@ -81,23 +95,80 @@ const useMyGroups = () => {
   } = useQuery({
     queryFn: fetchMyGroups,
     queryKey: ["myGroups"],
+    staleTime: 0, // Har doim yangilangan ma'lumot olish uchun
+    cacheTime: 0, // Eskirgan cache ma'lumotlarni ishlatmaslik
   });
 
   return { myGroups, isLoadingMyGroups, refetch };
 };
 
-// **useDeleteGroup** - Guruhni o'chirish uchun 
-const useDeleteGroup = () => {
+// **useCreateGroup** - Guruh yaratish uchun 
+const useCreateGroup = () => {
+  const { refetch } = useMyGroups();
+  // const navigate = useNavigate();
+  return useMutation({
+    mutationFn: createGroup,
+    onSuccess: async (data) => {
+      message.success("Guruh muvaffaqiyatli yaratildi!");
+      await refetch();
+      // navigate(`/groups/${data._id}`);
+    },
+    onError: (error) => {
+      message.error(`Xatolik: ${error.response?.data?.message || error.message}`);
+    },
+  });
+};
+
+// **useLeaveGroup** - Guruhni tark etish uchun 
+const useLeaveGroup = () => {
   return useMutation({
     mutationFn: leaveGroup,
   });
 };
 
-// **useConfirmDeleteGroup** - Guruhni o'chirishni tasdiqlash uchun 
+// **useDeleteGroup** - Guruhni o'chirish uchun 
+const useDeleteGroup = () => {
+  return useMutation({
+    mutationFn: deleteGroup,
+  });
+};
+
+// **useConfirmDeleteGroup** - Guruhni tark etishni tasdiqlash uchun 
+const useConfirmLeaveGroup = () => {
+  const { refetch } = useMyGroups();
+  const navigate = useNavigate();
+  const { mutate: leaveMutate } = useLeaveGroup();
+
+  const confirmLeaveGroup = (groupId) => {
+    Modal.confirm({
+      title: "Are you sure you want to leave this group?",
+      content: "You will no longer have access to this group.",
+      okText: "Yes, Leave",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk: () => {
+        leaveMutate(groupId, {
+          onSuccess: () => {
+            message.success("You left the group successfully");
+            refetch();
+            navigate("/");
+          },
+          onError: (error) => {
+            message.error(`Error leaving group: ${error.message}`);
+          },
+        });
+      },
+    });
+  };
+  return confirmLeaveGroup;
+};
+
+// **useConfirmDeleteGroup** - Guruhni o'chirishni tasdiqlash uchun
+
 const useConfirmDeleteGroup = () => {
   const { refetch } = useMyGroups();
   const navigate = useNavigate();
-  const { mutate } = useDeleteGroup();
+  const { mutate: deleteMutate } = useDeleteGroup();
 
   const confirmDeleteGroup = (groupId) => {
     Modal.confirm({
@@ -107,7 +178,7 @@ const useConfirmDeleteGroup = () => {
       okType: "danger",
       cancelText: "Cancel",
       onOk: () => {
-        mutate(groupId, {
+        deleteMutate(groupId, {
           onSuccess: () => {
             message.success("Group deleted successfully");
             refetch();
@@ -123,11 +194,13 @@ const useConfirmDeleteGroup = () => {
   return confirmDeleteGroup;
 };
 
-export { 
-  useGroups, 
-  useMember, 
-  useJoinGroup, 
-  useMyGroups, 
-  useDeleteGroup, 
-  useConfirmDeleteGroup 
+export {
+  useGroups,
+  useMember,
+  useJoinGroup,
+  useMyGroups,
+  useDeleteGroup,
+  useCreateGroup,
+  useConfirmLeaveGroup,
+  useConfirmDeleteGroup
 };

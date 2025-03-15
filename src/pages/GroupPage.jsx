@@ -1,31 +1,36 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Input, Dropdown, Button, List, Spin} from "antd";
+import { Modal, Input, Dropdown, Button, List, Spin } from "antd";
 import { useParams } from "react-router-dom";
-import { FaShoppingCart, FaTimes} from "react-icons/fa";
+import { FaShoppingCart, FaTimes } from "react-icons/fa";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
-import { useMember } from "@/hooks/useGroups";
-import { useMyGroups } from "@/hooks/useGroups";
+import {
+  useMyGroups,
+  useMember,
+  useConfirmLeaveGroup,
+  useConfirmDeleteGroup
+} from "@/hooks/useGroups";
 import { useStore } from "@/hooks/useStore";
-import { useConfirmDeleteGroup } from "../hooks/useGroups";
+
 
 function GroupPage() {
   const { id } = useParams();
-  const { myGroups, isLoadingMyGroups} = useMyGroups();
+  const { myGroups, isLoadingMyGroups } = useMyGroups();
   const group = myGroups.find((g) => String(g._id) === String(id));
   const [member, setMember] = useState('');
   const { members, isLoadingMember, isErrorMember } = useMember(member);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const user = useStore((state) => state.user);
   const [loadingTimeout, setLoadingTimeout] = useState(false);
+  const confirmLeaveGroup = useConfirmLeaveGroup();
   const confirmDeleteGroup = useConfirmDeleteGroup();
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoadingTimeout(true);
-    }, 5000); 
+    },5000);
 
-    return () => clearTimeout(timer); 
+    return () => clearTimeout(timer);
   }, []);
 
   if (!group) {
@@ -68,8 +73,6 @@ function GroupPage() {
     setIsModalOpen(false);
     setMember("");
   };
-
-
   const items = [
     {
       label: "Add Member",
@@ -82,7 +85,13 @@ function GroupPage() {
     {
       label: user.username === group.owner.username ? "Delete Group" : "Leave Group",
       key: "delete-group",
-      onClick: () => confirmDeleteGroup(group._id),
+      onClick: () => {
+        if (user.username === group.owner.username) {
+          confirmDeleteGroup(group._id);
+        } else {
+          confirmLeaveGroup(group._id);
+        }
+      },
       danger: true,
     },
   ];
@@ -169,7 +178,7 @@ function GroupPage() {
           </ul>
         </div>
       </div>
-      <Modal 
+      <Modal
         className="custom-modal"
         title="Add New Member"
         open={isModalOpen}
