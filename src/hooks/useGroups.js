@@ -32,21 +32,21 @@ const fetchMyGroups = async () => {
 
 // Guruh yaratish (createGroup) funksiyasi
 const createGroup = async ({ name, password }) => {
-  if (!name || !password) throw new Error("Guruh nomi va parol kerak");
+  if (!name || !password) throw new Error("Group name and password required");
   const { data } = await API.post("/groups", { name, password });
   return data;
 };
 
 // Guruhni tark etish (deleteGroup) funksiyasi
 const leaveGroup = async (groupId) => {
-  if (!groupId) throw new Error("Guruh IDsi kerak");
+  if (!groupId) throw new Error("Group ID required");
   const { data } = await API.post(`/groups/${groupId}/leave`);
   return data;
 };
 
 // Guruhni o'chirish (deleteGroup) funksiyasi
 const deleteGroup = async (groupId) => {
-  if (!groupId) throw new Error("Guruh IDsi kerak");
+  if (!groupId) throw new Error("Group ID required");
   const { data } = await API.delete(`/groups/${groupId}`);
   return data;
 };
@@ -95,8 +95,8 @@ const useMyGroups = () => {
   } = useQuery({
     queryFn: fetchMyGroups,
     queryKey: ["myGroups"],
-    staleTime: 0, // Har doim yangilangan ma'lumot olish uchun
-    cacheTime: 0, // Eskirgan cache ma'lumotlarni ishlatmaslik
+    staleTime: 0,
+    cacheTime: 0, 
   });
 
   return { myGroups, isLoadingMyGroups, refetch };
@@ -109,12 +109,12 @@ const useCreateGroup = () => {
   return useMutation({
     mutationFn: createGroup,
     onSuccess: async (data) => {
-      message.success("Guruh muvaffaqiyatli yaratildi!");
+      message.success("The group was successfully created!");
       await refetch();
       // navigate(`/groups/${data._id}`);
     },
     onError: (error) => {
-      message.error(`Xatolik: ${error.response?.data?.message || error.message}`);
+      message.error(`Error: ${error.response?.data?.message || error.message}`);
     },
   });
 };

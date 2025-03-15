@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useTheme } from "@/hooks/useTheme";
+import { Popover, Input, Button, message } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faMagnifyingGlass,
@@ -12,10 +13,7 @@ import {
   faDesktop,
 } from "@fortawesome/free-solid-svg-icons";
 import useAuth from "@/hooks/useAuth";
-import { useGroups } from "@/hooks/useGroups";
-import { Popover, Input, Button, message } from "antd";
-import { useJoinGroup } from "@/hooks/useGroups";
-import { useMyGroups } from "@/hooks/useGroups";
+import { useGroups,useJoinGroup, useMyGroups } from "@/hooks/useGroups";
 
 function Header() {
   const { darkMode, setDarkMode, setLanguage, themeMode, setThemeMode } = useTheme();
@@ -84,7 +82,6 @@ function Header() {
       }
     );
   };
-  
   
   const joinPopoverContent = (group) => (
     <div>
@@ -225,7 +222,7 @@ function Header() {
             </button>
             {isNotificationOpen && (
               <div className="dropdown">
-                <p>📩 Sizda 3 ta yangi bildirishnoma bor!</p>
+                <p>📩 You have 3 new notifications!</p>
               </div>
             )}
           </div>
@@ -236,8 +233,8 @@ function Header() {
             </button>
             {isMenuOpen && (
               <div className="dropdown">
-                <button>👤 Profil</button>
-                <button onClick={logout}>🔓 Chiqish</button>
+                <button>👤 Profile</button>
+                <button onClick={logout}>🔓 Logout</button>
               </div>
             )}
           </div>
@@ -246,5 +243,4 @@ function Header() {
     </header>
   );
 }
-
 export default Header;

@@ -39,7 +39,7 @@ function Sidebar() {
     try {
       const existingGroup = myGroups.find((group) => group.name === values.name);
       if (existingGroup) {
-        message.error("Bu nomdagi guruh allaqachon mavjud!");
+        message.error("A group with this name already exists!");
         return;
       }
       await createGroup.mutateAsync({ name: values.name, password: values.password });
@@ -47,8 +47,8 @@ function Sidebar() {
       setDrawerOpen(false);
       await refetch(); 
     } catch (error) {
-      console.error("Guruh yaratishda xato:", error.response?.data || error.message);
-      message.error(`Xatolik: ${error.response?.data?.message || "Noma'lum xatolik"}`);
+      console.error("Error creating group:", error.response?.data || error.message);
+      message.error(`Error: ${error.response?.data?.message || "Unknown error"}`);
     }
   };
   
@@ -126,8 +126,6 @@ function Sidebar() {
           },
         ]}
       />
-
-
 <Drawer
         title="Add New Group"
         placement="right"
