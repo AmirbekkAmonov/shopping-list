@@ -77,6 +77,18 @@ const removeItemFromGroup = async (itemId) => {
   return data;
 };
 
+// Mahsulotni sotib olingan deb belgilash funksiyasi
+const markItemAsBought = async (itemId) => {
+  const { data } = await API.post(`/items/${itemId}/mark-as-bought`);
+  return data;
+};
+
+// Sotib olingan mahsulotni o'chirish funksiyasi
+const removeBoughtItem = async (itemId) => {
+  const { data } = await API.delete(`/items/${itemId}/mark-as-bought`);
+  return data;
+};
+
 // **useGroups** - Guruhlarni qidirish uchun 
 const useGroups = (searchText) => {
   const {
@@ -249,7 +261,8 @@ const useRemoveMember = () => {
     },
   });
 };
-// **useGroupItems** - Guruh mahsulotlarini boshqarish
+
+// **useGroupItems** - Guruh mahsulotlarini boshqarish  l
 const useGroupItems = () => {
   const queryClient = useQueryClient();
   return {
@@ -269,8 +282,24 @@ const useGroupItems = () => {
       },
       onError: (error) => message.error(`Error: ${error.message}`),
     }),
+    removeBoughtItemMutation: useMutation({
+      mutationFn: removeBoughtItem,
+      onSuccess: () =>{ message.success("The item was successfully deleted!");
+      queryClient.invalidateQueries("groupItems");
+      },
+      onError: (error) => message.error(`Error: ${error.message}`),
+    }),
+    markItemAsBoughtMutation: useMutation({
+      mutationFn: markItemAsBought,
+      onSuccess: () => {
+        message.success("Product purchased!");
+        queryClient.invalidateQueries("groupItems");
+      },
+      onError: (error) => message.error(`Error: ${error.message}`),
+    }),
   };
 };
+
 
 export {
   useGroups,
@@ -283,5 +312,5 @@ export {
   useConfirmDeleteGroup,
   useAddMember,
   useRemoveMember,
-  useGroupItems
+  useGroupItems,
 };

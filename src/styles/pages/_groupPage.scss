@@ -89,7 +89,7 @@
             width: calc(50% - 10px);
             height: 100%;
             background-color: $body-bg;
-            overflow-y: auto; 
+            overflow-y: auto;
             scrollbar-width: thin;
 
             .group-description {
@@ -116,7 +116,6 @@
                         justify-content: center;
                         cursor: pointer;
                     }
-
                 }
 
                 h4 {
@@ -153,6 +152,23 @@
 
                 &:last-child {
                     border-bottom: none;
+                }
+
+                .item-title-wrapper {
+                    display: flex;
+                    align-items: start;
+                    gap: 5px;
+
+                    .bought-label {
+                        background-color: #28c0d8;
+                        color: white;
+                        padding: 5px;
+                        border-radius: 5px;
+                        font-size: 10px;
+                        font-weight: 500;
+                        display: inline-block;
+                        margin-bottom: 5px;
+                    }
                 }
             }
 
@@ -205,6 +221,13 @@
             .green {
                 background: #2ecc71;
                 color: white;
+                font-size: 18px;
+            }
+
+            .yellow {
+                background: #f1c40f;
+                color: white;
+                font-size: 20px;
             }
 
             .red {
@@ -242,6 +265,7 @@
                             font-weight: bold;
                         }
                     }
+
                     .remove-btn {
                         margin-left: auto;
                         width: 35px;
@@ -316,9 +340,11 @@ body.dark {
             }
         }
     }
+
     .custom-dropdown .ant-dropdown-menu-item:hover {
         background-color: #151b22cc !important;
     }
+
     .custom-modal .ant-modal-content {
         background-color: #1B232D !important;
         border: 1px solid #ccc !important;
@@ -326,12 +352,13 @@ body.dark {
         .ant-modal-header {
             background-color: #1B232D !important;
             border: none !important;
-            
+
             .ant-modal-title {
                 color: #A9AAAC !important;
-            } 
+            }
         }
-        .ant-modal-close-x  {
+
+        .ant-modal-close-x {
             border: 1px solid #ccc !important;
             border-radius: 5px !important;
             padding: 5px !important;
@@ -362,20 +389,23 @@ body.dark {
                 border: 1px solid #ccc !important;
                 color: #FFF !important;
             }
+
             .ant-empty-description {
                 color: #A9AAAC !important;
             }
+
             .member-item {
                 border-bottom: 1px solid #ccc !important;
             }
+
             .ant-list-item {
                 color: #A9AAAC !important;
             }
-           
+
         }
 
         .ant-modal-footer {
-           
+
             .cancel-btn {
                 background-color: #1B232D !important;
                 border: 1px solid #ccc !important;

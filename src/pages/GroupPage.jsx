@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Input, Dropdown, Button, List, Spin, message } from "antd";
 import { useParams } from "react-router-dom";
-import { FaShoppingCart, FaTimes } from "react-icons/fa";
+import { FaShoppingCart, FaTimes, FaStoreSlash  } from "react-icons/fa";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -14,7 +14,6 @@ import {
   useGroupItems
 } from "@/hooks/useGroups";
 import { useStore } from "@/hooks/useStore";
-
 
 function GroupPage() {
   const { id } = useParams();
@@ -29,7 +28,7 @@ function GroupPage() {
   const confirmDeleteGroup = useConfirmDeleteGroup();
   const { mutate: addMemberMutate } = useAddMember();
   const { mutate: removeMemberMutate } = useRemoveMember();
-  const { addItemMutation, removeItemMutation } = useGroupItems();
+  const { addItemMutation, removeItemMutation, markItemAsBoughtMutation, removeBoughtItemMutation } = useGroupItems();
   const [newItem, setNewItem] = useState("");
 
   // guruh ma'lumotlarini yuklashdagi xatolik nazorati vaqti 
@@ -172,10 +171,20 @@ function GroupPage() {
     });
     setNewItem("");
   };
- 
+
   // Guruhdan mahsulotni o'chirish
   const handleRemoveItem = (itemId) => {
     removeItemMutation.mutate(itemId);
+  };
+
+  // Guruhdan mahsulotni sotib olingan deb belgilash
+  const handleMarkAsBought = (itemId) => {
+    markItemAsBoughtMutation.mutate(itemId);
+  };
+
+  // Sotib olingan mahsulotni o'chirish
+  const handleRemoveBoughtItem = (itemId) => {
+    removeBoughtItemMutation.mutate(itemId);
   };
 
   return (
@@ -221,24 +230,45 @@ function GroupPage() {
                 <li key={`${item._id}-${index}`} className="item-card">
                   <div className="avatar">{item.title[0].toUpperCase()}</div>
                   <div className="item-content">
-                    <h4 className="item-title">{item.title}</h4>
+                    <div className="item-title-wrapper">
+                      <h4 className="item-title">{item.title}</h4>
+                      {item.isBought && item.boughtBy ? (
+                        <span className="bought-label">
+                          Bought By <strong>{item.boughtBy.name
+                          .split(" ")
+                          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                          .join(" ") || "Unknown"}</strong>
+                          {" " + new Date(item.boughtAt).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                          , {new Date(item.boughtAt).toLocaleDateString()}
+                        </span>
+                      ) : null}
+                    </div>
                     <p className="item-meta">
                       Created By {item.owner?.name
-                        .split(" ") 
-                        .map(word => word.charAt(0).toUpperCase() + word.slice(1)) 
+                        .split(" ")
+                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                         .join(" ") || "Unknown"} (
                       {new Date(item.createdAt).toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",
-                      })}
-                      , {new Date(item.createdAt).toLocaleDateString()})
+                      })},
+                      {new Date(item.createdAt).toLocaleDateString()})
                     </p>
-
                   </div>
                   <div className="item-actions">
-                    <button className="btn green">
-                      <FaShoppingCart />
-                    </button>
+                    {!item.isBought ? (
+                      <button className="btn green" onClick={() => handleMarkAsBought(item._id)}>
+                        <FaShoppingCart />
+                      </button>
+                    ): item.isBought && (
+                      <button className="btn yellow" onClick={() => handleRemoveBoughtItem(item._id)}>
+                        <FaStoreSlash  />
+                      </button>
+                    )}
+
                     {(user?._id === group?.owner?._id || user?._id === item?.owner?._id) && (
                       <button className="btn red" onClick={() => handleRemoveItem(item._id)}>
                         <FaTimes />
@@ -246,12 +276,12 @@ function GroupPage() {
                     )}
                   </div>
                 </li>
+
               ))
             ) : (
               <p>Hozircha hech qanday item yo'q.</p>
             )}
           </ul>
-
         </div>
         <div className="group-members">
           <div className="group-description">
