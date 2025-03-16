@@ -1,5 +1,5 @@
 import API from "@/services/api";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { message, Modal } from "antd";
 
@@ -62,6 +62,18 @@ const addMember = async ({ groupId, memberId }) => {
 const removeMember = async ({ groupId, memberId }) => {
   if (!groupId || !memberId) throw new Error("Group ID and Member ID are required");
   const { data } = await API.delete(`/groups/${groupId}/members/${memberId}`);
+  return data;
+};
+
+// Guruhga mahsulot qo'shish (addItemToGroup) funksiyasi
+const addItemToGroup = async ({ groupId, itemData }) => {
+  const { data } = await API.post(`/items`, { groupId, ...itemData });
+  return data;
+};
+
+// Guruhdan mahsulotni o'chirish (removeItemFromGroup) funksiyasi
+const removeItemFromGroup = async (itemId) => {
+  const { data } = await API.delete(`/items/${itemId}`);
   return data;
 };
 
@@ -237,7 +249,28 @@ const useRemoveMember = () => {
     },
   });
 };
-
+// **useGroupItems** - Guruh mahsulotlarini boshqarish
+const useGroupItems = () => {
+  const queryClient = useQueryClient();
+  return {
+    addItemMutation: useMutation({
+      mutationFn: addItemToGroup,
+      onSuccess: () => {
+        message.success("Product added successfully!");
+        queryClient.invalidateQueries("groupItems"); 
+      },
+      onError: (error) => message.error(`Error: ${error.message}`),
+    }),
+    removeItemMutation: useMutation({
+      mutationFn: removeItemFromGroup,
+      onSuccess: () => {
+        message.success("The item was successfully deleted!");
+        queryClient.invalidateQueries("groupItems"); 
+      },
+      onError: (error) => message.error(`Error: ${error.message}`),
+    }),
+  };
+};
 
 export {
   useGroups,
@@ -249,5 +282,6 @@ export {
   useConfirmLeaveGroup,
   useConfirmDeleteGroup,
   useAddMember,
-  useRemoveMember
+  useRemoveMember,
+  useGroupItems
 };

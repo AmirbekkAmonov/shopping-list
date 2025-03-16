@@ -10,7 +10,8 @@ import {
   useConfirmLeaveGroup,
   useConfirmDeleteGroup,
   useAddMember,
-  useRemoveMember
+  useRemoveMember,
+  useGroupItems
 } from "@/hooks/useGroups";
 import { useStore } from "@/hooks/useStore";
 
@@ -28,6 +29,8 @@ function GroupPage() {
   const confirmDeleteGroup = useConfirmDeleteGroup();
   const { mutate: addMemberMutate } = useAddMember();
   const { mutate: removeMemberMutate } = useRemoveMember();
+  const { addItemMutation, removeItemMutation } = useGroupItems();
+  const [newItem, setNewItem] = useState("");
 
   // guruh ma'lumotlarini yuklashdagi xatolik nazorati vaqti 
   useEffect(() => {
@@ -157,6 +160,24 @@ function GroupPage() {
     });
   };
 
+  // Guruhga mahsulot qo'shish
+  const handleAddItem = () => {
+    if (!newItem.trim()) return;
+    addItemMutation.mutate({
+      groupId: group._id,
+      itemData: {
+        title: newItem,
+        addedBy: user._id,
+      },
+    });
+    setNewItem("");
+  };
+ 
+  // Guruhdan mahsulotni o'chirish
+  const handleRemoveItem = (itemId) => {
+    removeItemMutation.mutate(itemId);
+  };
+
   return (
     <div className="group-page">
       <div className="group-header">
@@ -180,10 +201,18 @@ function GroupPage() {
       <div className="group-content">
         <div className="group-info">
           <div className="group-description">
-            <h4>Items <span>{group.items.length}</span></h4>
+            <h4>
+              Items <span>{group.items.length}</span>
+            </h4>
             <div className="group-items">
-              <input type="text" className="input" placeholder="Add Title" />
-              <button className="add-item">+</button>
+              <input
+                type="text"
+                className="input"
+                placeholder="Add Title"
+                value={newItem}
+                onChange={(e) => setNewItem(e.target.value)}
+              />
+              <button className="add-item" onClick={handleAddItem}>+</button>
             </div>
           </div>
           <ul className="items-list">
@@ -194,20 +223,24 @@ function GroupPage() {
                   <div className="item-content">
                     <h4 className="item-title">{item.title}</h4>
                     <p className="item-meta">
-                      Created By {group.owner?.name || "Unknown"} (
+                      Created By {item.owner?.name
+                        .split(" ") 
+                        .map(word => word.charAt(0).toUpperCase() + word.slice(1)) 
+                        .join(" ") || "Unknown"} (
                       {new Date(item.createdAt).toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",
                       })}
-                      ,{new Date(item.createdAt).toLocaleDateString()})
+                      , {new Date(item.createdAt).toLocaleDateString()})
                     </p>
+
                   </div>
                   <div className="item-actions">
                     <button className="btn green">
                       <FaShoppingCart />
                     </button>
-                    {user?.username === group?.owner?.username && (
-                      <button className="btn red">
+                    {(user?._id === group?.owner?._id || user?._id === item?.owner?._id) && (
+                      <button className="btn red" onClick={() => handleRemoveItem(item._id)}>
                         <FaTimes />
                       </button>
                     )}
@@ -218,6 +251,7 @@ function GroupPage() {
               <p>Hozircha hech qanday item yo'q.</p>
             )}
           </ul>
+
         </div>
         <div className="group-members">
           <div className="group-description">
