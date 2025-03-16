@@ -13,7 +13,7 @@ import {
   faDesktop,
 } from "@fortawesome/free-solid-svg-icons";
 import useAuth from "@/hooks/useAuth";
-import { useGroups,useJoinGroup, useMyGroups } from "@/hooks/useGroups";
+import { useGroups, useJoinGroup, useMyGroups } from "@/hooks/useGroups";
 
 function Header() {
   const { darkMode, setDarkMode, setLanguage, themeMode, setThemeMode } = useTheme();
@@ -26,7 +26,7 @@ function Header() {
   const [group, setGroup] = useState('');
   const { groups, isLoadingGroups, isErrorGroups } = useGroups(group);
   const { mutate: joinGroup, isLoading, isError, error } = useJoinGroup();
-  const {refetch} = useMyGroups();
+  const { refetch, myGroups } = useMyGroups();
 
 
   const themeRef = useRef(null);
@@ -34,6 +34,7 @@ function Header() {
   const menuRef = useRef(null);
   const notificationRef = useRef(null);
 
+  // Popoverni yopish
   useEffect(() => {
     function handleClickOutside(event) {
       if (themeRef.current && !themeRef.current.contains(event.target)) setThemeOpen(false);
@@ -45,6 +46,7 @@ function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Tema o'zgartirish
   const changeTheme = (mode) => {
     setThemeMode(mode);
     if (mode === "system") {
@@ -55,18 +57,16 @@ function Header() {
     }
   };
 
+  // Guruhga qo'shish
   const handleJoin = (group) => {
-  
     if (!group._id) {
       message.error("Group ID is missing!");
       return;
     }
-  
     if (!password) {
       message.warning("Please enter a password.");
       return;
     }
-  
     joinGroup(
       { groupId: group._id, password },
       {
@@ -82,7 +82,8 @@ function Header() {
       }
     );
   };
-  
+
+  // Guruhga qo'shish uchun popover(modal)
   const joinPopoverContent = (group) => (
     <div>
       <Input
@@ -103,7 +104,11 @@ function Header() {
       {isError && message.error(error?.message || "Failed to join")}
     </div>
   );
-  
+
+  // Guruhlarni qidirish uchun filter
+  const filteredGroups = groups?.filter(
+    (g) => !myGroups?.some((myGroup) => myGroup._id === g._id)
+  );
 
   return (
     <header className={`header ${darkMode ? "dark" : ""}`}>
@@ -129,8 +134,8 @@ function Header() {
                 <ul>
                   {isLoadingGroups ? (
                     <p className="loading">Loading groups...</p>
-                  ) : groups.length > 0 ? (
-                    groups.map((group, index) => (
+                  ) : filteredGroups.length > 0 ? (
+                    filteredGroups.map((group, index) => (
                       <li key={group.id || index + 1}>
                         <div className="user">
                           <div className="user-info">
@@ -226,7 +231,6 @@ function Header() {
               </div>
             )}
           </div>
-
           <div className="relative" ref={menuRef}>
             <button className="avatar" onClick={() => setMenuOpen(!isMenuOpen)}>
               <img src="avatar.jpg" alt="User Avatar" />
